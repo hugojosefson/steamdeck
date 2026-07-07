@@ -66,19 +66,42 @@ phase_1() {
 }
 
 phase_2() {
-    if [ -z "$(ls -A "$ROM_DIR/" 2>/dev/null || true)" ]; then
-        echo "─── Manual step ───"
-        echo "Place DOS game .zip files into:"
-        echo "  $ROM_DIR"
-        echo ""
-        echo "Get games from eXoDOS on archive.org:"
-        echo "  https://archive.org/details/exodos-520"
-        echo ""
-        echo "Then re-run this script."
-        save_phase 2
-        exit 0
+    if [ -n "$(ls -A "$ROM_DIR/" 2>/dev/null || true)" ]; then
+        return 0
     fi
-    return 0
+
+    echo "No game files found in $ROM_DIR"
+    echo ""
+    echo "Options:"
+    echo "  1) Run eXoDOS browser to search and download games"
+    echo "  2) I'll place games manually later"
+    read -rp "Choose [1/2]: " choice || true
+
+    if [ "$choice" = "1" ]; then
+        if [ -x "$(dirname "$0")/exodos-browser.sh" ]; then
+            "$(dirname "$0")/exodos-browser.sh" "$ROM_DIR"
+        elif [ -x "./exodos-browser.sh" ]; then
+            ./exodos-browser.sh "$ROM_DIR"
+        else
+            echo "exodos-browser.sh not found. Download it from:"
+            echo "  https://raw.githubusercontent.com/hugojosefson/steamdeck/main/exodos-browser.sh"
+        fi
+        if [ -n "$(ls -A "$ROM_DIR/" 2>/dev/null || true)" ]; then
+            echo ">>> Games downloaded successfully!"
+            return 0
+        fi
+    fi
+
+    echo "─── Manual step ───"
+    echo "Place DOS game .zip files into:"
+    echo "  $ROM_DIR"
+    echo ""
+    echo "Get games from eXoDOS on archive.org:"
+    echo "  https://archive.org/details/exodos-520"
+    echo ""
+    echo "Then re-run this script."
+    save_phase 2
+    exit 0
 }
 
 phase_3() {
@@ -109,7 +132,11 @@ phase_3() {
     echo "  3. Click Save to Steam"
     echo "  4. Close Steam ROM Manager"
     echo ""
-    echo "Then re-run this script."
+    echo "─── Optional (for Gaming Mode) ───"
+    echo "To download more games later without switching to Desktop Mode:"
+    echo "  Steam → Library → Add a Non-Steam Game → Browse → select exodos-browser.sh"
+    echo ""
+    echo "Then re-run this script to finish."
     exit 0
 }
 

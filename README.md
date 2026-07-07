@@ -23,5 +23,7 @@ after each manual step to continue where you left off.
   — detailed step-by-step guide
 - [setup-dos.sh](setup-dos.sh) — automated setup script (companion to the guide
   above)
+- [exodos-browser.sh](exodos-browser.sh) — browse and download games from
+  archive.org (works in Desktop Mode or Gaming Mode via Steam non-Steam game)
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development and testing info.

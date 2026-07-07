@@ -9,6 +9,9 @@
 > ```bash
 > curl -L https://raw.githubusercontent.com/hugojosefson/steamdeck/main/setup-dos.sh | bash
 > ```
+>
+> To browse and download individual game zips later, use
+> [exodos-browser.sh](exodos-browser.sh).
 
 Play 7,600+ DOS games from Gaming Mode with full controller support.
 
