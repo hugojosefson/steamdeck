@@ -132,15 +132,56 @@ phase_3() {
     echo "  3. Click Save to Steam"
     echo "  4. Close Steam ROM Manager"
     echo ""
-    echo "─── Optional (for Gaming Mode) ───"
-    echo "To download more games later without switching to Desktop Mode:"
-    echo "  Steam → Library → Add a Non-Steam Game → Browse → select exodos-browser.sh"
-    echo ""
     echo "Then re-run this script to finish."
     exit 0
 }
 
+setup_steam_shortcut() {
+    local browser_src="" browser_dst="" py_src=""
+
+    # Find exodos-browser.sh (next to this script or in PATH)
+    for d in "$(dirname "$0")" . ./test ..; do
+        if [ -f "$d/exodos-browser.sh" ]; then
+            browser_src="$(cd "$d" && pwd)/exodos-browser.sh"
+            break
+        fi
+    done
+
+    if [ -z "$browser_src" ]; then
+        browser_src="/tmp/exodos-browser.sh"
+        echo ">>> Downloading exodos-browser.sh..."
+        curl -sL -o "$browser_src" \
+            "https://raw.githubusercontent.com/hugojosefson/steamdeck/main/exodos-browser.sh" || true
+        if [ ! -f "$browser_src" ]; then
+            echo ">>> Download failed. Browser won't be added to Steam automatically."
+            return
+        fi
+    fi
+
+    browser_dst="$HOME/Emulation/tools/exodos-browser.sh"
+    mkdir -p "$(dirname "$browser_dst")"
+    cp "$browser_src" "$browser_dst"
+    chmod +x "$browser_dst"
+    echo ">>> Installed browser to $browser_dst"
+
+    # Find and run the Python shortcut adder
+    for d in "$(dirname "$0")" .; do
+        if [ -f "$d/add-steam-shortcut.py" ]; then
+            py_src="$d/add-steam-shortcut.py"
+            break
+        fi
+    done
+
+    if [ -n "$py_src" ]; then
+        echo ">>> Adding Steam shortcut..."
+        python3 "$py_src" "eXoDOS Browser" "$browser_dst" || true
+    else
+        echo "Add to Steam manually: Steam → Library → Add a Non-Steam Game → Browse → select $browser_dst"
+    fi
+}
+
 phase_4() {
+    setup_steam_shortcut
     echo ">>> Setup complete!"
     rm -f "$STATE_FILE"
     echo ">>> Returning to Gaming Mode..."
